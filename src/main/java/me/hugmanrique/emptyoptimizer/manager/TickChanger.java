@@ -27,7 +27,7 @@ public class TickChanger {
     }
 
     private InputStream getServerBytecode() {
-        return main.getServer().getClass().getClassLoader().getResourceAsStream(CLASS_NAME);
+        return main.getResource(CLASS_NAME);
     }
 
     private void modifyBytecode() {
