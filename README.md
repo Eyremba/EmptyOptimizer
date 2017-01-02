@@ -25,6 +25,8 @@ public class Test {
 
 I've also tried to modify the TPS reference in the ``run()`` method, but as the server is running while the plugin tries to modify the bytecode, this is impossible to achieve.
 
+I know another way this could be fixed, but it would imply to modify the original Spigot.jar in runtime, but I'm not sure of the legal implications this could have.
+
 I have already asked Spigot staff to remove the plugin. I will try to make a pull request to the previously mentioned patch to see if it's possible to remove the final modifier to be accessed by using reflection.
 
 Hugo ;)
