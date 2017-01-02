@@ -44,6 +44,6 @@ public class ReflectionUtils {
     private static final String version = name.substring(name.lastIndexOf('.') + 1);
 
     public static Class<?> getNMSClass(String className) {
-        return getClass("net.minecraft.server." + version + ',' + className);
+        return getClass("net.minecraft.server." + version + '.' + className);
     }
 }

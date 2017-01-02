@@ -18,6 +18,8 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         loadConfig();
         new PlayerListener(this);
+
+        setEmpty(true);
     }
 
     public void setEmpty(boolean empty) {
