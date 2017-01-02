@@ -1,5 +1,7 @@
 package me.hugmanrique.emptyoptimizer.utils;
 
+import org.bukkit.Bukkit;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -37,48 +39,11 @@ public class ReflectionUtils {
         }
     }
 
-    public static Object getObject(Field field, Object object) {
-        try {
-            return field.get(object);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    // Custom added
+    private static final String name = Bukkit.getServer().getClass().getPackage().getName();
+    private static final String version = name.substring(name.lastIndexOf('.') + 1);
 
-    public static int getInt(Field field, Object object) {
-        try {
-            return field.getInt(object);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    public static double getDouble(Field field, Object object) {
-        try {
-            return field.getDouble(object);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return 0D;
-        }
-    }
-
-    public static float getFloat(Field field, Object object) {
-        try {
-            return field.getFloat(object);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    public static Method getMethod(Class<?> clazz, String name) {
-        try {
-            return clazz.getMethod(name);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static Class<?> getNMSClass(String className) {
+        return getClass("net.minecraft.server." + version + ',' + className);
     }
 }

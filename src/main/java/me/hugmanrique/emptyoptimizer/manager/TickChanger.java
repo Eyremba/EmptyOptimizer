@@ -1,17 +1,28 @@
 package me.hugmanrique.emptyoptimizer.manager;
 
+import me.hugmanrique.emptyoptimizer.utils.ReflectionUtils;
+
+import java.lang.reflect.Field;
+
 /**
  * @author Hugmanrique
  * @since 01/01/2017
  */
 public class TickChanger {
-    public static float DEFAULT_TICKRATE = 20;
-    public static float TICK_PER_SECOND = 20;
-    public static long MILLISECONDS_PER_TICK = 50L;
+    private static final Class<?> SERVER_CLASS;
 
-    public static float GAME_SPEED = 1;
-    public static float MIN_TICKRATE = .1F;
-    public static float MAX_TICKRATE = 1000;
+    private static final Field TPS_FIELD;
+    private static final Field TICK_TIME_FIELD;
 
+    static {
+        SERVER_CLASS = ReflectionUtils.getNMSClass("MinecraftServer");
 
+        TPS_FIELD = ReflectionUtils.getField(SERVER_CLASS, "TPS");
+        TICK_TIME_FIELD = ReflectionUtils.getField(SERVER_CLASS, "TICK_TIME");
+    }
+
+    public static void setTps(int tps) {
+        ReflectionUtils.setField(TPS_FIELD, null, tps);
+        ReflectionUtils.setField(TICK_TIME_FIELD, null, 1000000000 / tps);
+    }
 }

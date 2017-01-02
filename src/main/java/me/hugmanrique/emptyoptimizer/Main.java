@@ -1,6 +1,6 @@
 package me.hugmanrique.emptyoptimizer;
 
-import me.hugmanrique.emptyoptimizer.manager.TickTransformer;
+import me.hugmanrique.emptyoptimizer.manager.TickChanger;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -11,20 +11,29 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin {
     private boolean empty = true;
 
-    private TickTransformer transformer;
+    private int normalTps;
+    private int emptyTps;
 
     @Override
     public void onEnable() {
-        transformer = new TickTransformer(this);
+        loadConfig();
         new PlayerListener(this);
     }
 
     public void setEmpty(boolean empty) {
-        this.empty = empty;
-
-        if (empty) {
-
+        if (this.empty == empty) {
+            return;
         }
+
+        this.empty = empty;
+        TickChanger.setTps(empty ? emptyTps : normalTps);
+    }
+
+    private void loadConfig() {
+        saveDefaultConfig();
+
+        normalTps = getConfig().getInt("normalTps", 20);
+        emptyTps = getConfig().getInt("emptyTps", 1);
     }
 
     public void registerListener(Listener listener) {
