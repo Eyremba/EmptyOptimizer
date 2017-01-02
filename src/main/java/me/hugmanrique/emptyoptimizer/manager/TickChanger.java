@@ -1,28 +1,92 @@
 package me.hugmanrique.emptyoptimizer.manager;
 
-import me.hugmanrique.emptyoptimizer.utils.ReflectionUtils;
+import jdk.internal.org.objectweb.asm.ClassReader;
+import jdk.internal.org.objectweb.asm.ClassWriter;
+import jdk.internal.org.objectweb.asm.Opcodes;
+import jdk.internal.org.objectweb.asm.tree.*;
+import me.hugmanrique.emptyoptimizer.Main;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Hugmanrique
  * @since 01/01/2017
  */
+// TODO Remove old code
 public class TickChanger {
-    private static final Class<?> SERVER_CLASS;
+    // New code
+    private Main main;
 
-    private static final Field TPS_FIELD;
-    private static final Field TICK_TIME_FIELD;
-
-    static {
-        SERVER_CLASS = ReflectionUtils.getNMSClass("MinecraftServer");
-
-        TPS_FIELD = ReflectionUtils.getField(SERVER_CLASS, "TPS");
-        TICK_TIME_FIELD = ReflectionUtils.getField(SERVER_CLASS, "TICK_TIME");
+    public TickChanger(Main main) {
+        this.main = main;
+        modifyBytecode();
     }
 
-    public static void setTps(int tps) {
-        ReflectionUtils.setStaticFinal(TPS_FIELD, tps);
-        ReflectionUtils.setStaticFinal(TICK_TIME_FIELD, 1000000000 / tps);
+    private final static String CLASS_NAME = "net.minecraft.server.MinecraftServer";
+
+    private InputStream getServerBytecode() {
+        return main.getServer().getClass().getClassLoader().getResourceAsStream(CLASS_NAME);
     }
+
+    private void modifyBytecode() {
+        getLogger().log(Level.INFO, "Applying ASM to Minecraft run method");
+
+        InputStream in = getServerBytecode();
+
+        if (in == null) {
+            getLogger().log(Level.SEVERE, "Couldn't find MinecraftServer bytecode");
+            return;
+        }
+
+        ClassNode classNode = new ClassNode();
+
+        try {
+            ClassReader reader = new ClassReader(in);
+            reader.accept(classNode, 0);
+
+            for (MethodNode method : classNode.methods) {
+                if (!(method.name.equals("run") && method.desc.equals("()V"))) {
+                    continue;
+                }
+
+                InsnList list = new InsnList();
+
+                for (AbstractInsnNode node : method.instructions.toArray()) {
+                    if (!(node instanceof LdcInsnNode)) {
+                        list.add(node);
+                        continue;
+                    }
+
+                    LdcInsnNode ldcNode = (LdcInsnNode) node;
+
+                    if (ldcNode.cst instanceof Long && (Long) ldcNode.cst == 50L) {
+                        list.add(new FieldInsnNode(Opcodes.GETSTATIC, "me/hugmanrique/emptyoptimizer/Main", "RUN_TIME", "J"));
+                    }
+                }
+
+                method.instructions.clear();
+                method.instructions.add(list);
+            }
+
+            writeNewBytecode(classNode);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeNewBytecode(ClassNode node) {
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        node.accept(writer);
+    }
+
+    private Logger getLogger() {
+        return main.getLogger();
+    }
+
+
+
+
 }

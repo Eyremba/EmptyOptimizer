@@ -1,2 +1,3 @@
 normalTps: 20
 emptyTps: 1
+unloadSpawnchunks: true
