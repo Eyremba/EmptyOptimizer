@@ -4,12 +4,14 @@ import me.hugmanrique.emptyoptimizer.manager.TickChanger;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Level;
+
 /**
  * @author Hugmanrique
  * @since 01/01/2017
  */
 public class Main extends JavaPlugin {
-    private boolean empty = true;
+    private boolean empty = false;
 
     private int normalTps;
     private int emptyTps;

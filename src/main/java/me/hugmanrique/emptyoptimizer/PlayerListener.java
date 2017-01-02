@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.logging.Level;
+
 /**
  * @author Hugmanrique
  * @since 01/01/2017
@@ -29,7 +31,8 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        if (Bukkit.getOnlinePlayers().size() > 0) {
+        // 1 because it isn't updated yet
+        if (Bukkit.getOnlinePlayers().size() > 1) {
             return;
         }
 
