@@ -1,0 +1,4 @@
+name: EmptyOptimizer
+author: Hugmanrique
+version: ${project.version}
+main: me.hugmanrique.emptyoptimizer.Main
