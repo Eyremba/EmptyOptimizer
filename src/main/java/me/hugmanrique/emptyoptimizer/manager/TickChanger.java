@@ -1,13 +1,14 @@
 package me.hugmanrique.emptyoptimizer.manager;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.tree.*;
 import me.hugmanrique.emptyoptimizer.Main;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,17 +16,15 @@ import java.util.logging.Logger;
  * @author Hugmanrique
  * @since 01/01/2017
  */
-// TODO Remove old code
 public class TickChanger {
-    // New code
+    private final static String CLASS_NAME = "net.minecraft.server.MinecraftServer";
+
     private Main main;
 
     public TickChanger(Main main) {
         this.main = main;
         modifyBytecode();
     }
-
-    private final static String CLASS_NAME = "net.minecraft.server.MinecraftServer";
 
     private InputStream getServerBytecode() {
         return main.getServer().getClass().getClassLoader().getResourceAsStream(CLASS_NAME);
@@ -47,7 +46,7 @@ public class TickChanger {
             ClassReader reader = new ClassReader(in);
             reader.accept(classNode, 0);
 
-            for (MethodNode method : classNode.methods) {
+            for (MethodNode method : (List<MethodNode>) classNode.methods) {
                 if (!(method.name.equals("run") && method.desc.equals("()V"))) {
                     continue;
                 }
