@@ -23,7 +23,7 @@ public class Test {
 }
 ```
 
-I've also tried to modify the TPS reference in the ``run()`` method, but as the server is running while the plugin tries to modify the bytecode, this is impossible to achieve.
+I've also tried to modify the TPS reference in the ``run()`` method using ASM bytecode's ClassWriter, but as the server is running while the plugin tries to modify the bytecode, this is impossible to achieve.
 
 I know another way this could be fixed, but it would imply to modify the original Spigot.jar in runtime, but I'm not sure of the legal implications this could have.
 
