@@ -31,5 +31,7 @@ I have already asked Spigot staff to remove the plugin. I will try to make a pul
 
 Hugo ;)
 
-## Old description: 
+## Old description:
+Spigot transcript: [SPIGOT.md](SPIGOT.md)
+
 You can find more info about this plugin @ [spigotmc.org](https://www.spigotmc.org/resources/emptyoptimizer.34136/)
