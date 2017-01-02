@@ -22,7 +22,7 @@ public class TickChanger {
     }
 
     public static void setTps(int tps) {
-        ReflectionUtils.setField(TPS_FIELD, null, tps);
-        ReflectionUtils.setField(TICK_TIME_FIELD, null, 1000000000 / tps);
+        ReflectionUtils.setStaticFinal(TPS_FIELD, tps);
+        ReflectionUtils.setStaticFinal(TICK_TIME_FIELD, 1000000000 / tps);
     }
 }

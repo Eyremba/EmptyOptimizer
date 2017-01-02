@@ -3,7 +3,7 @@ package me.hugmanrique.emptyoptimizer.utils;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * Reflection Utils which you can use to make methods using reflection easier, faster and more efficient
@@ -30,10 +30,16 @@ public class ReflectionUtils {
         }
     }
 
-    public static void setField(Field field, Object object, Object value) {
+    // Modified to remove final
+    public static void setStaticFinal(Field field, Object value) {
         try {
             field.setAccessible(true);
-            field.set(object, value);
+
+            Field modifiersField = getField(Field.class, "modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+
+            field.set(null, value);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
