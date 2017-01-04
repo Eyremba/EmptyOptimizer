@@ -14,15 +14,19 @@ public class Main extends JavaPlugin {
     private double emptyTps;
     private boolean unloadSpawns;
 
-    private boolean empty = true;
+    private boolean empty = false;
 
     @Override
     public void onEnable() {
-        loadConfig();
+        boolean startup = loadConfig();
         new PlayerListener(this);
 
         // Init bytecode replacement
         changer = new TickChanger(this);
+
+        if (startup) {
+            setEmpty(true);
+        }
 
         if (unloadSpawns) {
             setUnloadSpawns();
@@ -47,11 +51,13 @@ public class Main extends JavaPlugin {
         getServer().getWorlds().forEach(world -> world.setKeepSpawnInMemory(false));
     }
 
-    private void loadConfig() {
+    private boolean loadConfig() {
         saveDefaultConfig();
 
         emptyTps = getConfig().getDouble("emptyTps", 1);
         unloadSpawns = getConfig().getBoolean("unloadSpawnchunks", true);
+
+        return getConfig().getBoolean("startup", true);
     }
 
     public void registerListener(Listener listener) {

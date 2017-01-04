@@ -1,6 +1,8 @@
 package me.hugmanrique.emptyoptimizer.manager;
 
 import me.hugmanrique.emptyoptimizer.Main;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,12 +15,10 @@ public class TickChanger {
     private static final int TICK_TIME = 1000 / 20;
 
     private Main main;
-    private final Timer timer;
-    private TimerTask task;
+    private BukkitRunnable runnable;
 
     public TickChanger(Main main) {
         this.main = main;
-        this.timer = new Timer("TickChanger");
     }
 
     public void setTps(double tps) {
@@ -30,7 +30,7 @@ public class TickChanger {
 
         final long sleep = getSleepMillis(tps);
 
-        task = new TimerTask() {
+        runnable = new BukkitRunnable() {
             @Override
             public void run() {
                 try {
@@ -41,15 +41,15 @@ public class TickChanger {
             }
         };
 
-        timer.scheduleAtFixedRate(task, 1000, 1000);
+        runnable.runTaskTimer(main, 1L, 1L);
     }
 
     public void cancel() {
-        if (task == null) {
+        if (runnable == null) {
             return;
         }
 
-        task.cancel();
+        runnable.cancel();
     }
 
     private long getSleepMillis(double tps) {
