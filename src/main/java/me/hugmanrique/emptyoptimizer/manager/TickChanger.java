@@ -2,10 +2,6 @@ package me.hugmanrique.emptyoptimizer.manager;
 
 import me.hugmanrique.emptyoptimizer.Main;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * @author Hugmanrique
