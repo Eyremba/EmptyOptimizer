@@ -1,129 +1,58 @@
 package me.hugmanrique.emptyoptimizer.manager;
 
 import me.hugmanrique.emptyoptimizer.Main;
-import org.bukkit.Bukkit;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.CodeSource;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author Hugmanrique
  * @since 01/01/2017
  */
 public class TickChanger {
+    private static final int TICK_TIME = 1000 / 20;
+
     private Main main;
+    private final Timer timer;
+    private TimerTask task;
 
     public TickChanger(Main main) {
         this.main = main;
-        modifyBytecode();
+        this.timer = new Timer("TickChanger");
     }
 
-    private Class<?> getNMSClass() throws ClassNotFoundException {
-        String name = main.getServer().getClass().getPackage().getName();
-        String version = name.substring(name.lastIndexOf('.') + 1);
+    public void setTps(double tps) {
+        cancel();
 
-        return Class.forName("net.minecraft.server." + version + ".MinecraftServer");
-    }
-
-    private InputStream getServerBytecode() {
-        try {
-            Class<?> clazz = getNMSClass();
-            String className = clazz.getCanonicalName().replaceAll("\\.", "/") + ".class";
-
-            return clazz.getClassLoader().getResourceAsStream(className);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void modifyBytecode() {
-        getLogger().log(Level.INFO, "Applying ASM to Minecraft run method");
-
-        InputStream in = getServerBytecode();
-
-        if (in == null) {
-            getLogger().log(Level.SEVERE, "Couldn't find MinecraftServer bytecode, are you using a custom Minecraft server build?");
+        if (tps >= 20D) {
             return;
         }
 
-        ClassNode classNode = new ClassNode();
+        final long sleep = getSleepMillis(tps);
 
-        try {
-            ClassReader reader = new ClassReader(in);
-            reader.accept(classNode, 0);
-
-            Iterator<MethodNode> methods = classNode.methods.iterator();
-            while(methods.hasNext()) {
-                MethodNode method = methods.next();
-
-                if((method.name.equals("run")) && (method.desc.equals("()V"))) {
-                    InsnList list = new InsnList();
-                    for(AbstractInsnNode node : method.instructions.toArray()) {
-
-                        if(node instanceof LdcInsnNode) {
-                            LdcInsnNode ldcNode = (LdcInsnNode)node;
-                            if((ldcNode.cst instanceof Long) && ((Long)ldcNode.cst == 50L)) {
-                                list.add(new FieldInsnNode(Opcodes.GETSTATIC, "me/guichaguri/tickratechanger/TickrateChanger", "MILISECONDS_PER_TICK", "J"));
-                                continue;
-                            }
-                        }
-
-                        list.add(node);
-                    }
-
-                    method.instructions.clear();
-                    method.instructions.add(list);
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(sleep);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
+        };
 
-            for (MethodNode method : (List<MethodNode>) classNode.methods) {
-                if (!(method.name.equals("run") && method.desc.equals("()V"))) {
-                    continue;
-                }
+        timer.scheduleAtFixedRate(task, 1000, 1000);
+    }
 
-                InsnList list = new InsnList();
-
-                for (AbstractInsnNode node : method.instructions.toArray()) {
-                    if (!(node instanceof LdcInsnNode)) {
-                        list.add(node);
-                        continue;
-                    }
-
-                    LdcInsnNode ldcNode = (LdcInsnNode) node;
-
-                    if (ldcNode.cst instanceof Long && (Long) ldcNode.cst == 50L) {
-                        list.add(new FieldInsnNode(Opcodes.GETSTATIC, "me/hugmanrique/emptyoptimizer/Main", "RUN_TIME", "J"));
-                    }
-                }
-
-                method.instructions.clear();
-                method.instructions.add(list);
-            }
-
-            writeNewBytecode(classNode);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void cancel() {
+        if (task == null) {
+            return;
         }
+
+        task.cancel();
     }
 
-    private void writeNewBytecode(ClassNode node) {
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        node.accept(writer);
-    }
-
-    private Logger getLogger() {
-        return main.getLogger();
+    private long getSleepMillis(double tps) {
+        return 1000 - (long) (TICK_TIME * tps);
     }
 }

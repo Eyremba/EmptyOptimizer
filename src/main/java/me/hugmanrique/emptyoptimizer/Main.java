@@ -9,13 +9,9 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @since 01/01/2017
  */
 public class Main extends JavaPlugin {
-    private static final int SEC_IN_NANOS = 1000000000;
-    public static int RUN_TIME = SEC_IN_NANOS / 20;
-
     private TickChanger changer;
 
-    private int normalTps;
-    private int emptyTps;
+    private double emptyTps;
     private boolean unloadSpawns;
 
     private boolean empty = true;
@@ -39,7 +35,12 @@ public class Main extends JavaPlugin {
         }
 
         this.empty = empty;
-        RUN_TIME = SEC_IN_NANOS / (empty ? emptyTps : normalTps);
+
+        if (empty) {
+            changer.setTps(emptyTps);
+        } else {
+            changer.cancel();
+        }
     }
 
     private void setUnloadSpawns() {
@@ -49,11 +50,8 @@ public class Main extends JavaPlugin {
     private void loadConfig() {
         saveDefaultConfig();
 
-        normalTps = getConfig().getInt("normalTps", 20);
-        emptyTps = getConfig().getInt("emptyTps", 1);
+        emptyTps = getConfig().getDouble("emptyTps", 1);
         unloadSpawns = getConfig().getBoolean("unloadSpawnchunks", true);
-
-        RUN_TIME = SEC_IN_NANOS / emptyTps;
     }
 
     public void registerListener(Listener listener) {
